@@ -19,8 +19,8 @@ app.use(express.json()); // For parsing application/json
 // MongoDB connection URI 
 const uri = process.env.MONGO_URI;
 const jwt_key = process.env.JWT_SECRET_KEY;
-const dbName = process.env.DB_NAME; 
-const collName = process.env.COLLECTION_NAME; 
+const dbName = process.env.DB_NAME;
+const collName = process.env.COLLECTION_NAME;
 
 
 // MongoDB client setup
@@ -34,6 +34,12 @@ client.connect()
     usersCollection = client.db(`${dbName}`).collection(`${collName}`); // Use the 'users' collection
   })
   .catch((err) => console.error("MongoDB connection error:", err));
+
+// Default route
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
+
 
 // Routes
 app.post("/api/users/signup", async (req, res) => {
