@@ -11,7 +11,8 @@ const Exercise = () => {
   const [gifUrls, setGifUrls] = useState({}); // State to store GIF URLs with exercise names
 
   const url = `https://exercisedb.p.rapidapi.com/exercises?limit=100&offset=100`;
-  const exercise_db_api_key = "a3a8007797msh1b5ac7b1dd506e9p13b7e0jsn4d956bbfaacf";
+  const exercise_db_api_key =
+    "a3a8007797msh1b5ac7b1dd506e9p13b7e0jsn4d956bbfaacf";
   const searchUrl = `https://exercisedb.p.rapidapi.com/exercises`;
 
   const fetchExerciseItems = async () => {
@@ -22,6 +23,7 @@ const Exercise = () => {
     try {
       const response = await fetch(url, {
         method: "GET",
+        mode: "cors", // Add this line
         headers: {
           "x-rapidapi-key": `${exercise_db_api_key}`,
           "x-rapidapi-host": "exercisedb.p.rapidapi.com",
@@ -48,7 +50,10 @@ const Exercise = () => {
     let shuffledArray = [...array];
     for (let i = shuffledArray.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+      [shuffledArray[i], shuffledArray[j]] = [
+        shuffledArray[j],
+        shuffledArray[i],
+      ];
     }
     return shuffledArray;
   };
@@ -62,11 +67,13 @@ const Exercise = () => {
         if (item.gifUrl) {
           gifs[item.name] = item.gifUrl;
         } else {
-          gifs[item.name] = "https://via.placeholder.com/400x300.png?text=GIF+not+available";
+          gifs[item.name] =
+            "https://via.placeholder.com/400x300.png?text=GIF+not+available";
         }
       } catch (error) {
         console.error(`Error fetching GIF for ${item.name}:`, error);
-        gifs[item.name] = "https://via.placeholder.com/400x300.png?text=GIF+not+available"; // Fallback
+        gifs[item.name] =
+          "https://via.placeholder.com/400x300.png?text=GIF+not+available"; // Fallback
       }
     });
 
@@ -89,7 +96,8 @@ const Exercise = () => {
         },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch exercises based on search");
+      if (!response.ok)
+        throw new Error("Failed to fetch exercises based on search");
 
       const data = await response.json();
       const filteredSearchResults = data.filter((exercise) =>
@@ -161,7 +169,9 @@ const Exercise = () => {
         />
       </div>
 
-      {error && !loading && <div className="text-red-600 text-center mt-4">{error}</div>}
+      {error && !loading && (
+        <div className="text-red-600 text-center mt-4">{error}</div>
+      )}
 
       {loading && (
         <div className="text-center mb-6 text-white">
@@ -179,7 +189,10 @@ const Exercise = () => {
               <div>
                 <div className="mb-4">
                   <img
-                    src={gifUrls[exerciseItem.name] || "https://via.placeholder.com/400x300.png?text=GIF+not+available"}
+                    src={
+                      gifUrls[exerciseItem.name] ||
+                      "https://via.placeholder.com/400x300.png?text=GIF+not+available"
+                    }
                     alt={exerciseItem.name}
                     className="w-full h-56 object-cover rounded-lg"
                   />
@@ -189,7 +202,8 @@ const Exercise = () => {
                     {exerciseItem.name || "Name"}
                   </h3>
                   <p className="text-gray-600 mt-2">
-                    {exerciseItem.equipment || "Equipment: Information not available"}
+                    {exerciseItem.equipment ||
+                      "Equipment: Information not available"}
                   </p>
                 </div>
                 <p className="text-gray-600 mt-2">
