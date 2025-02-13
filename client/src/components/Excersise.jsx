@@ -101,7 +101,7 @@ const Exercise = () => {
 
       const data = await response.json();
       const filteredSearchResults = data.filter((exercise) =>
-        exercise.name.toLowerCase().includes(searchValue.toLowerCase().trim())
+        exercise.name.toLowerCase().includes(searchValue.toLowerCase())
       );
 
       if (filteredSearchResults.length > 0) {
