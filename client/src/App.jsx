@@ -62,11 +62,23 @@ function AppContent({ setBackgroundImage }) {
       <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       <div className="flex-grow">
         <Routes>
+          {/* Always redirect "/" to "/login" if not logged in */}
+          <Route
+            path="/"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/exercise" />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
           <Route
             path="/login"
             element={
               isLoggedIn ? (
-                <Navigate to="/" />
+                <Navigate to="/exercise" />
               ) : (
                 <Login setIsLoggedIn={setIsLoggedIn} />
               )
@@ -74,7 +86,7 @@ function AppContent({ setBackgroundImage }) {
           />
           <Route path="/signup" element={<Signup />} />
           <Route
-            path="/"
+            path="/exercise"
             element={isLoggedIn ? <Excersise /> : <Navigate to="/login" />}
           />
           <Route
@@ -85,8 +97,7 @@ function AppContent({ setBackgroundImage }) {
             path="/competition"
             element={isLoggedIn ? <Competition /> : <Navigate to="/login" />}
           />
-          <Route path="*" element={<Navigate to="/login" />} />{" "}
-          {/* Redirect all unknown routes to login */}
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </div>
       <Footer />
