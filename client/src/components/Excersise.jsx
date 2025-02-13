@@ -1,15 +1,14 @@
-// Segregate Based On Body Parts 
 import React, { useState, useEffect, useCallback } from "react";
 
 const Exercise = () => {
-  const [exerciseItems, setExerciseItems] = useState([]);
-  const [filteredExercises, setFilteredExercises] = useState([]);
+  const [exerciseItems, setExerciseItems] = useState([]); // All exercises
+  const [filteredExercises, setFilteredExercises] = useState([]); // Exercises to display
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isContentLoaded, setIsContentLoaded] = useState(false);
-  const [searching, setSearching] = useState(false); // To track if a search request is in progress
-  const [gifUrls, setGifUrls] = useState({}); // State to store GIF URLs with exercise names
+  const [searching, setSearching] = useState(false); // Prevent concurrent searches
+  const [gifUrls, setGifUrls] = useState({}); // Store GIF URLs with exercise names
 
   const url = `https://exercisedb.p.rapidapi.com/exercises?limit=100&offset=100`;
   const exercise_db_api_key = "a3a8007797msh1b5ac7b1dd506e9p13b7e0jsn4d956bbfaacf";
@@ -24,7 +23,7 @@ const Exercise = () => {
       const response = await fetch(url, {
         method: "GET",
         headers: {
-          "x-rapidapi-key": `${exercise_db_api_key}`,
+          "x-rapidapi-key": exercise_db_api_key,
           "x-rapidapi-host": "exercisedb.p.rapidapi.com",
         },
       });
@@ -35,7 +34,7 @@ const Exercise = () => {
       data = shuffleArray(data);
 
       setExerciseItems(data);
-      setFilteredExercises(data);
+      setFilteredExercises(data); // Set initial exercises as the filtered list
       await fetchExerciseGifs(data); // Fetch GIFs when exercises are loaded
     } catch (error) {
       setError(error.message);
@@ -85,7 +84,7 @@ const Exercise = () => {
       const response = await fetch(`${searchUrl}?name=${searchValue}`, {
         method: "GET",
         headers: {
-          "x-rapidapi-key": `${exercise_db_api_key}`,
+          "x-rapidapi-key": exercise_db_api_key,
           "x-rapidapi-host": "exercisedb.p.rapidapi.com",
         },
       });
@@ -93,17 +92,10 @@ const Exercise = () => {
       if (!response.ok) throw new Error("Failed to fetch exercises based on search");
 
       const data = await response.json();
-      // Filter the fetched data based on the search term
-      const filteredSearchResults = data.filter((exercise) =>
-        exercise.name.toLowerCase().includes(searchValue.toLowerCase())
-      );
 
-      if (filteredSearchResults.length > 0) {
-        setFilteredExercises(filteredSearchResults);
-        await fetchExerciseGifs(filteredSearchResults); // Fetch GIFs for searched exercises
-      } else {
-        setFilteredExercises([]); // No results
-      }
+      // Directly set the search results as the filtered exercises
+      setFilteredExercises(data);
+      await fetchExerciseGifs(data); // Fetch GIFs for searched exercises
     } catch (error) {
       setError(error.message);
     } finally {
@@ -113,7 +105,7 @@ const Exercise = () => {
   };
 
   useEffect(() => {
-    fetchExerciseItems();
+    fetchExerciseItems(); // Fetch the initial random exercises
   }, []);
 
   const handleSearch = useCallback(
@@ -121,33 +113,15 @@ const Exercise = () => {
       const searchValue = event.target.value;
       setSearchTerm(searchValue);
 
-      // If the search term is empty, fetch 100 random exercises again
       if (searchValue.length === 0) {
-        fetchExerciseItems(); // Fetch 100 random exercises
-        return;
-      }
-
-      // If the search term is too short, reset the filtered exercises
-      if (searchValue.length < 2) {
-        setFilteredExercises([]);
-        return;
-      }
-
-      // Search within already fetched exercises
-      const filteredData = exerciseItems.filter((exercise) =>
-        exercise.name.toLowerCase().includes(searchValue.toLowerCase())
-      );
-
-      if (filteredData.length > 0) {
-        // If there are results from already fetched exercises
-        setFilteredExercises(filteredData);
-        fetchExerciseGifs(filteredData); // Fetch GIFs for the filtered exercises
+        // If the search term is empty, fetch 100 random exercises again
+        fetchExerciseItems();
       } else {
-        // If no results in fetched exercises, fetch dynamically
+        // Directly fetch exercises based on the search term
         fetchExercisesBySearchTerm(searchValue);
       }
     },
-    [exerciseItems]
+    []
   );
 
   return (
