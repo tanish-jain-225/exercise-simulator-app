@@ -1,4 +1,3 @@
-// Segregate Based On Body Parts 
 import React, { useState, useEffect, useCallback } from "react";
 
 const Exercise = () => {
@@ -93,7 +92,6 @@ const Exercise = () => {
       if (!response.ok) throw new Error("Failed to fetch exercises based on search");
 
       const data = await response.json();
-      // Filter the fetched data based on the search term
       const filteredSearchResults = data.filter((exercise) =>
         exercise.name.toLowerCase().includes(searchValue.toLowerCase())
       );
@@ -127,25 +125,26 @@ const Exercise = () => {
         return;
       }
 
-      // If the search term is too short, reset the filtered exercises
-      if (searchValue.length < 2) {
-        setFilteredExercises([]);
-        return;
-      }
+      // Debounce logic to avoid fetching too often (500ms delay)
+      const debounceTimeout = setTimeout(() => {
+        if (searchValue.length >= 2) {
+          // Search within already fetched exercises
+          const filteredData = exerciseItems.filter((exercise) =>
+            exercise.name.toLowerCase().includes(searchValue.toLowerCase())
+          );
 
-      // Search within already fetched exercises
-      const filteredData = exerciseItems.filter((exercise) =>
-        exercise.name.toLowerCase().includes(searchValue.toLowerCase())
-      );
+          if (filteredData.length > 0) {
+            // If there are results from already fetched exercises
+            setFilteredExercises(filteredData);
+            fetchExerciseGifs(filteredData); // Fetch GIFs for the filtered exercises
+          } else {
+            // If no results in fetched exercises, fetch dynamically
+            fetchExercisesBySearchTerm(searchValue);
+          }
+        }
+      }, 500);
 
-      if (filteredData.length > 0) {
-        // If there are results from already fetched exercises
-        setFilteredExercises(filteredData);
-        fetchExerciseGifs(filteredData); // Fetch GIFs for the filtered exercises
-      } else {
-        // If no results in fetched exercises, fetch dynamically
-        fetchExercisesBySearchTerm(searchValue);
-      }
+      return () => clearTimeout(debounceTimeout); // Cleanup the previous timeout
     },
     [exerciseItems]
   );
