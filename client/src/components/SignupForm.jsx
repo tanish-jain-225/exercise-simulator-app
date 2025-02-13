@@ -10,7 +10,7 @@ const SignupForm = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
-  const app_link = "http://localhost:5000"
+  const app_link = "https://exercise-simulator-app-backend.vercel.app" // localhost:5000
 
   // Disable the back button once the component is loaded
   useEffect(() => {

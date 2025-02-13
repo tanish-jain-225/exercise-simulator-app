@@ -1,5 +1,7 @@
 ## Excersise Simulator 
 
+# Local Version - Instructions - localhost:5000
+
 # To start backend 
 - Run 'cd .\server\'
 - Run 'npm i'
@@ -15,3 +17,5 @@
 # You can use name of exercise as Queries for exercise section.  
 
 # Note :- MONGOURI="Your SRV Connection String" in 'server/.env' file. 
+
+# App is Deployed 

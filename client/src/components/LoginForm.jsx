@@ -9,7 +9,7 @@ const LoginForm = ({ setIsLoggedIn }) => {
   const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
-  const app_link = "http://localhost:5000"
+  const app_link = "https://exercise-simulator-app-backend.vercel.app" // localhost:5000 
 
   const handleLogin = async (e) => {
     e.preventDefault();
