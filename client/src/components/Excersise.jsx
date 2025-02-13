@@ -6,26 +6,25 @@ const Exercise = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isContentLoaded, setIsContentLoaded] = useState(false);
-  const [searching, setSearching] = useState(false); // To track if a search request is in progress
-  const [gifUrls, setGifUrls] = useState({}); // State to store GIF URLs with exercise names
+  const [searching, setSearching] = useState(false);
+  const [gifUrls, setGifUrls] = useState({});
 
   const url = `https://exercisedb.p.rapidapi.com/exercises?limit=100&offset=100`;
-  const exercise_db_api_key =
-    "a3a8007797msh1b5ac7b1dd506e9p13b7e0jsn4d956bbfaacf";
+  const exercise_db_api_key = "a3a8007797msh1b5ac7b1dd506e9p13b7e0jsn4d956bbfaacf";
   const searchUrl = `https://exercisedb.p.rapidapi.com/exercises`;
+
+  useEffect(() => {
+    fetchExerciseItems();
+  }, []);
 
   const fetchExerciseItems = async () => {
     setLoading(true);
     setError(null);
-    setIsContentLoaded(false);
-
     try {
       const response = await fetch(url, {
         method: "GET",
-        mode: "cors", // Add this line
         headers: {
-          "x-rapidapi-key": `${exercise_db_api_key}`,
+          "x-rapidapi-key": exercise_db_api_key,
           "x-rapidapi-host": "exercisedb.p.rapidapi.com",
         },
       });
@@ -34,15 +33,13 @@ const Exercise = () => {
 
       let data = await response.json();
       data = shuffleArray(data);
-
       setExerciseItems(data);
       setFilteredExercises(data);
-      await fetchExerciseGifs(data); // Fetch GIFs when exercises are loaded
+      await fetchExerciseGifs(data);
     } catch (error) {
       setError(error.message);
     } finally {
       setLoading(false);
-      setIsContentLoaded(true);
     }
   };
 
@@ -50,39 +47,21 @@ const Exercise = () => {
     let shuffledArray = [...array];
     for (let i = shuffledArray.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffledArray[i], shuffledArray[j]] = [
-        shuffledArray[j],
-        shuffledArray[i],
-      ];
+      [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
     }
     return shuffledArray;
   };
 
   const fetchExerciseGifs = async (items) => {
-    if (!Array.isArray(items)) return;
-
     let gifs = {};
-    const gifPromises = items.map(async (item) => {
-      try {
-        if (item.gifUrl) {
-          gifs[item.name] = item.gifUrl;
-        } else {
-          gifs[item.name] =
-            "https://via.placeholder.com/400x300.png?text=GIF+not+available";
-        }
-      } catch (error) {
-        console.error(`Error fetching GIF for ${item.name}:`, error);
-        gifs[item.name] =
-          "https://via.placeholder.com/400x300.png?text=GIF+not+available"; // Fallback
-      }
+    items.forEach((item) => {
+      gifs[item.name] = item.gifUrl || "https://via.placeholder.com/400x300.png?text=GIF+not+available";
     });
-
-    await Promise.all(gifPromises);
-    setGifUrls(gifs); // Store the fetched GIFs with exercise names
+    setGifUrls(gifs);
   };
 
   const fetchExercisesBySearchTerm = async (searchValue) => {
-    if (searching) return; // Prevent fetching if already searching
+    if (searching) return;
     setSearching(true);
     setLoading(true);
     setError(null);
@@ -91,25 +70,16 @@ const Exercise = () => {
       const response = await fetch(`${searchUrl}?name=${searchValue}`, {
         method: "GET",
         headers: {
-          "x-rapidapi-key": `${exercise_db_api_key}`,
+          "x-rapidapi-key": exercise_db_api_key,
           "x-rapidapi-host": "exercisedb.p.rapidapi.com",
         },
       });
 
-      if (!response.ok)
-        throw new Error("Failed to fetch exercises based on search");
+      if (!response.ok) throw new Error("Failed to fetch exercises");
 
       const data = await response.json();
-      const filteredSearchResults = data.filter((exercise) =>
-        exercise.name.toLowerCase().includes(searchValue.toLowerCase())
-      );
-
-      if (filteredSearchResults.length > 0) {
-        setFilteredExercises(filteredSearchResults);
-        await fetchExerciseGifs(filteredSearchResults); // Fetch GIFs for searched exercises
-      } else {
-        setFilteredExercises([]); // No results
-      }
+      setFilteredExercises(data);
+      await fetchExerciseGifs(data);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -119,43 +89,26 @@ const Exercise = () => {
   };
 
   useEffect(() => {
-    fetchExerciseItems();
-  }, []);
+    const debounceTimeout = setTimeout(() => {
+      if (searchTerm.length >= 2) {
+        const filteredData = exerciseItems.filter((exercise) =>
+          [exercise.name, exercise.equipment, exercise.target]
+            .some((field) => field?.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
 
-  const handleSearch = useCallback(
-    (event) => {
-      const searchValue = event.target.value;
-      setSearchTerm(searchValue);
-
-      // If the search term is empty, fetch 100 random exercises again
-      if (searchValue.length === 0) {
-        fetchExerciseItems(); // Fetch 100 random exercises
-        return;
-      }
-
-      // Debounce logic to avoid fetching too often (500ms delay)
-      const debounceTimeout = setTimeout(() => {
-        if (searchValue.length >= 2) {
-          // Search within already fetched exercises
-          const filteredData = exerciseItems.filter((exercise) =>
-            exercise.name.toLowerCase().includes(searchValue.toLowerCase())
-          );
-
-          if (filteredData.length > 0) {
-            // If there are results from already fetched exercises
-            setFilteredExercises(filteredData);
-            fetchExerciseGifs(filteredData); // Fetch GIFs for the filtered exercises
-          } else {
-            // If no results in fetched exercises, fetch dynamically
-            fetchExercisesBySearchTerm(searchValue);
-          }
+        if (filteredData.length > 0) {
+          setFilteredExercises(filteredData);
+          fetchExerciseGifs(filteredData);
+        } else {
+          fetchExercisesBySearchTerm(searchTerm);
         }
-      }, 500);
+      } else {
+        setFilteredExercises(exerciseItems);
+      }
+    }, 500);
 
-      return () => clearTimeout(debounceTimeout); // Cleanup the previous timeout
-    },
-    [exerciseItems]
-  );
+    return () => clearTimeout(debounceTimeout);
+  }, [searchTerm, exerciseItems]);
 
   return (
     <div className="p-4">
@@ -164,22 +117,19 @@ const Exercise = () => {
           type="text"
           placeholder="Search exercises..."
           value={searchTerm}
-          onChange={handleSearch}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
         />
       </div>
 
-      {error && !loading && (
-        <div className="text-red-600 text-center mt-4">{error}</div>
+      {error && <div className="text-red-600 text-center mt-4">{error}</div>}
+      {loading && <div className="text-center mb-6 text-white"><p>Loading...</p></div>}
+      
+      {!loading && filteredExercises.length === 0 && (
+        <div className="text-center text-gray-600">No results found.</div>
       )}
 
-      {loading && (
-        <div className="text-center mb-6 text-white">
-          <p>Loading...</p>
-        </div>
-      )}
-
-      {isContentLoaded && !loading && (
+      {!loading && filteredExercises.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {filteredExercises.map((exerciseItem, index) => (
             <div
@@ -189,27 +139,19 @@ const Exercise = () => {
               <div>
                 <div className="mb-4">
                   <img
-                    src={
-                      gifUrls[exerciseItem.name] ||
-                      "https://via.placeholder.com/400x300.png?text=GIF+not+available"
-                    }
+                    src={gifUrls[exerciseItem.name]}
                     alt={exerciseItem.name}
                     className="w-full h-56 object-cover rounded-lg"
                   />
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold mt-4 capitalize">
-                    {exerciseItem.name || "Name"}
-                  </h3>
-                  <p className="text-gray-600 mt-2">
-                    {exerciseItem.equipment ||
-                      "Equipment: Information not available"}
-                  </p>
-                </div>
+                <h3 className="text-xl font-semibold mt-4 capitalize">
+                  {exerciseItem.name || "Name"}
+                </h3>
                 <p className="text-gray-600 mt-2">
-                  {exerciseItem.instructions
-                    ? `Instructions: ${exerciseItem.instructions}`
-                    : "Instructions: Information not available"}
+                  {exerciseItem.equipment || "Equipment: Information not available"}
+                </p>
+                <p className="text-gray-600 mt-2">
+                  {exerciseItem.target ? `Target: ${exerciseItem.target}` : "Target: Information not available"}
                 </p>
               </div>
               <div className="mt-4">
