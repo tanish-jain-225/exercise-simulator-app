@@ -6,26 +6,28 @@ const LoginForm = ({ setIsLoggedIn }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const app_link = "https://exercise-simulator-app-backend.vercel.app" // localhost:5000 
+  const app_link = "https://exercise-simulator-app-backend.vercel.app";
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading when login is triggered
-    setError(""); // Reset error message
+    setLoading(true);
+    setError("");
 
     try {
       const response = await axios.post(`${app_link}/api/users/login`, { email, password });
+
       localStorage.setItem("token", response.data.token); // Store JWT token
-      setIsLoggedIn(true); // Update navbar state
+      localStorage.setItem("userEmail", email); // Store user email
+      setIsLoggedIn(true);
 
       navigate("/"); // Redirect to Exercise page
     } catch (err) {
-      setError("Invalid email or password"); // Show error message if login fails
+      setError(err.response?.data?.message || "Invalid email or password"); // Improved error handling
     } finally {
-      setLoading(false); // Stop loading after the request is complete
+      setLoading(false);
     }
   };
 
@@ -56,9 +58,9 @@ const LoginForm = ({ setIsLoggedIn }) => {
           <button
             type="submit"
             className="w-full px-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-            disabled={loading} // Disable the button while loading
+            disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"} {/* Show loading text */}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
