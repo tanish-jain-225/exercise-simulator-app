@@ -10,40 +10,43 @@ const SignupForm = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
-  const app_link = "https://exercise-simulator-app-backend.vercel.app";
+  const app_link = "https://exercise-simulator-app-backend.vercel.app" // localhost:5000
 
-  // Prevents back navigation after signup
+  // Disable the back button once the component is loaded
   useEffect(() => {
-    const preventBackNavigation = () => {
-      window.history.pushState(null, "", window.location.href);
+    const preventBackNavigation = (e) => {
+      // Prevent the user from going back in the history
+      e.preventDefault();
+      e.returnValue = ''; // Standard for most browsers
     };
 
-    preventBackNavigation();
-    window.addEventListener("popstate", preventBackNavigation);
+    // Disable back button by pushing state
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', preventBackNavigation);
 
     return () => {
-      window.removeEventListener("popstate", preventBackNavigation);
+      // Re-enable the back button once the component is unmounted
+      window.removeEventListener('popstate', preventBackNavigation);
     };
   }, []);
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccessMessage('');
 
     try {
-      const response = await axios.post(`${app_link}/api/users/signup`, { name, email, password });
+      await axios.post(`${app_link}/api/users/signup`, { name, email, password });
 
-      setSuccessMessage("Signup successful! Redirecting to login...");
-      localStorage.setItem("userEmail", email); // Store user email for reference
+      setSuccessMessage("Signup successful! Please log in.");
+      setError('');
 
-      setTimeout(() => navigate('/login'), 2000);
+      // Redirect to login page after signup
+      setTimeout(() => {
+        navigate('/login'); // User must log in manually
+      }, 2000);
+      
     } catch (err) {
-      if (err.response?.status === 409) {
-        setError("Email already in use. Please log in.");
-      } else {
-        setError(err.response?.data?.message || "Signup failed. Try again.");
-      }
+      setError(err.response?.data?.message || "Signup failed");
+      setSuccessMessage('');
     }
   };
 
