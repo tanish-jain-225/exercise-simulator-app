@@ -112,21 +112,21 @@ const Food = () => {
 
       {/* Food Items Grid -Card */}
       {allDataLoaded && foodItems.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="flex justify-center">
         {foodItems.map((food, index) => (
           <div
             key={index}
-            className="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl"
+            className="bg-white sm:w-[50%] w-[90%] shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl"
           >
             {/* Image Section */}
             <img
               src={imageUrlsRef.current[food.name] || "https://via.placeholder.com/200x150"}
               alt={food.name}
-              className="w-full h-44 object-cover"
+              className="w-full h-50 object-cover"
             />
       
             {/* Food Details */}
-            <div className="p-4">
+            <div className="p-3">
               <h3 className="text-lg font-bold text-gray-800 capitalize">{food.name}</h3>
       
               {/* Nutritional Info */}

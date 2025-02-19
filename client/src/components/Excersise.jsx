@@ -190,8 +190,7 @@ const Exercise = () => {
                 <div className="mb-4">
                   <img
                     src={
-                      gifUrls[exerciseItem.name] ||
-                      "https://via.placeholder.com/400x300.png?text=GIF+not+available"
+                      gifUrls[exerciseItem.name]
                     }
                     alt={exerciseItem.name}
                     className="w-full h-56 object-cover rounded-lg"
