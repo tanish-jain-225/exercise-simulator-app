@@ -12,7 +12,7 @@ const Exercise = () => {
   const [gifUrls, setGifUrls] = useState({}); // State to store GIF URLs with exercise names
 
   const url = `https://exercisedb.p.rapidapi.com/exercises?limit=100&offset=100`;
-  const exercise_db_api_key = "a3a8007797msh1b5ac7b1dd506e9p13b7e0jsn4d956bbfaacf";
+  const exercise_db_api_key = "b4e6f87b9cmsh03aa61a9885197bp12e96bjsn637ccd1d5b83";
   const searchUrl = `https://exercisedb.p.rapidapi.com/exercises`;
 
   const fetchExerciseItems = async () => {
