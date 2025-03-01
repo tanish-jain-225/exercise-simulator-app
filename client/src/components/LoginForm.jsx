@@ -9,7 +9,10 @@ const LoginForm = ({ setIsLoggedIn }) => {
   const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
-  const app_link = "https://exercise-simulator-app-backend.vercel.app" // localhost:5000 
+  const app_link =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://exercise-simulator-app-backend.vercel.app";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,7 +20,10 @@ const LoginForm = ({ setIsLoggedIn }) => {
     setError(""); // Reset error message
 
     try {
-      const response = await axios.post(`${app_link}/api/users/login`, { email, password });
+      const response = await axios.post(`${app_link}/api/users/login`, {
+        email,
+        password,
+      });
       localStorage.setItem("token", response.data.token); // Store JWT token
       setIsLoggedIn(true); // Update navbar state
 
@@ -32,7 +38,9 @@ const LoginForm = ({ setIsLoggedIn }) => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-3xl font-semibold text-center text-gray-800">Login</h2>
+        <h2 className="text-3xl font-semibold text-center text-gray-800">
+          Login
+        </h2>
 
         {error && <p className="text-red-600 text-center mt-4">{error}</p>}
 

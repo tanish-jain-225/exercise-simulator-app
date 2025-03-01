@@ -1,32 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignupForm = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
-  const app_link = "https://exercise-simulator-app-backend.vercel.app" // localhost:5000
+  const app_link =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://exercise-simulator-app-backend.vercel.app";
 
   // Disable the back button once the component is loaded
   useEffect(() => {
     const preventBackNavigation = (e) => {
       // Prevent the user from going back in the history
       e.preventDefault();
-      e.returnValue = ''; // Standard for most browsers
+      e.returnValue = ""; // Standard for most browsers
     };
 
     // Disable back button by pushing state
-    window.history.pushState(null, '', window.location.href);
-    window.addEventListener('popstate', preventBackNavigation);
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", preventBackNavigation);
 
     return () => {
       // Re-enable the back button once the component is unmounted
-      window.removeEventListener('popstate', preventBackNavigation);
+      window.removeEventListener("popstate", preventBackNavigation);
     };
   }, []);
 
@@ -34,28 +37,35 @@ const SignupForm = () => {
     e.preventDefault();
 
     try {
-      await axios.post(`${app_link}/api/users/signup`, { name, email, password });
+      await axios.post(`${app_link}/api/users/signup`, {
+        name,
+        email,
+        password,
+      });
 
       setSuccessMessage("Signup successful! Please log in.");
-      setError('');
+      setError("");
 
       // Redirect to login page after signup
       setTimeout(() => {
-        navigate('/login'); // User must log in manually
+        navigate("/login"); // User must log in manually
       }, 2000);
-      
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed");
-      setSuccessMessage('');
+      setSuccessMessage("");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-3xl font-semibold text-center text-gray-800">Sign Up</h2>
+        <h2 className="text-3xl font-semibold text-center text-gray-800">
+          Sign Up
+        </h2>
 
-        {successMessage && <p className="text-green-600 text-center mt-4">{successMessage}</p>}
+        {successMessage && (
+          <p className="text-green-600 text-center mt-4">{successMessage}</p>
+        )}
         {error && <p className="text-red-600 text-center mt-4">{error}</p>}
 
         <form onSubmit={handleSignup} className="space-y-4">

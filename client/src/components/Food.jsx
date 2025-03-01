@@ -1,70 +1,68 @@
-// API change 
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
 const Food = () => {
   const [foodItems, setFoodItems] = useState([]);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isContentLoaded, setIsContentLoaded] = useState(false);
-  const [allDataLoaded, setAllDataLoaded] = useState(false);
+  const [imageUrls, setImageUrls] = useState({});
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const imageUrlsRef = useRef({});
+  // API keys for the Nutrition Data API and Pixabay Images API
+  const ninja_data_api_key = import.meta.env.VITE_NINJA_API_KEY;
+  const pixabay_images_api_key = import.meta.env.VITE_PIXABAY_API_KEY;
 
-  // Api keys and secrets  
-  const ninja_data_api_key = "4djTX684YuzuktpSHhz6vA==lkNflklbWGoiQlYw"
-  const pixabay_images_api_key = '48466349-17b626c5842b291cd98fe4ee6';
+  useEffect(() => {
+    const cachedImages = JSON.parse(sessionStorage.getItem("cachedFoodImages") || "{}");
+    setImageUrls(cachedImages);
+  }, []);
 
-  // Function to fetch food items
+  const saveImagesToCache = (newImages) => {
+    const updatedImages = { ...imageUrls, ...newImages };
+    setImageUrls(updatedImages);
+    sessionStorage.setItem("cachedFoodImages", JSON.stringify(updatedImages));
+  };
+
   const fetchFoodItems = async () => {
     if (!query.trim()) {
-      setError("Input space is empty. Please enter a query.");
+      setError("Please enter a food name.");
       setFoodItems([]);
-      setIsContentLoaded(true);
-      setAllDataLoaded(true); // Ensure loading is complete even if no query is entered
+      setCurrentIndex(0);
       return;
     }
 
     setLoading(true);
     setError(null);
     setFoodItems([]);
-    setIsContentLoaded(false);
-    setAllDataLoaded(false); // Reset when starting a new fetch
+    setCurrentIndex(0);
 
     try {
       const response = await fetch(
         `https://api.calorieninjas.com/v1/nutrition?query=${query}`,
         {
-          headers: {
-            "X-Api-Key": `${ninja_data_api_key}`,
-          },
+          headers: { "X-Api-Key": ninja_data_api_key },
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch food items");
+      if (!response.ok) throw new Error("Failed to fetch food data.");
 
       const data = await response.json();
-      if (data.items?.length > 0) {
+      if (data.items && data.items.length > 0) {
         setFoodItems(data.items);
-        fetchFoodImages(data.items);
+        await fetchFoodImages(data.items);
       } else {
-        setError("No results found for the given query.");
-        setIsContentLoaded(true);
-        setAllDataLoaded(true); // Ensure loading is complete when no results are found
+        setError("No food items found for your search.");
       }
-    } catch (error) {
-      setError(error.message);
-      setIsContentLoaded(true);
-      setAllDataLoaded(true); // Ensure loading is complete even on error
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Function to fetch images (Optimized to cache results)
   const fetchFoodImages = async (items) => {
     const imagePromises = items.map(async (item) => {
-      if (imageUrlsRef.current[item.name]) return; // Skip fetching if already cached
+      if (imageUrls[item.name]) return;
 
       try {
         const response = await fetch(
@@ -72,17 +70,27 @@ const Food = () => {
         );
         const data = await response.json();
 
-        imageUrlsRef.current[item.name] =
-          data.hits?.[0]?.webformatURL || "https://via.placeholder.com/200x150";
+        return { [item.name]: data.hits?.[0]?.webformatURL || "https://via.placeholder.com/200x150" };
       } catch {
-        imageUrlsRef.current[item.name] = "https://via.placeholder.com/200x150";
+        return { [item.name]: "https://via.placeholder.com/200x150" };
       }
     });
 
-    await Promise.all(imagePromises);
+    const imageResults = await Promise.all(imagePromises);
+    const newImageUrls = imageResults.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    saveImagesToCache(newImageUrls);
+  };
 
-    // After all images are fetched, set the state to indicate loading is complete
-    setAllDataLoaded(true);
+  const handleNext = () => {
+    if (currentIndex < foodItems.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
   };
 
   return (
@@ -93,14 +101,14 @@ const Food = () => {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Enter food name..."
+          placeholder="Enter food name to get nutrition data"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
         />
         <button
-          onClick={fetchFoodItems} // Fetch on button click
+          onClick={fetchFoodItems}
           className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
         >
-          Access
+          Search
         </button>
       </div>
 
@@ -110,52 +118,61 @@ const Food = () => {
       {/* Error Message */}
       {error && !loading && <div className="text-center text-red-500">{error}</div>}
 
-      {/* Food Items Grid -Card */}
-      {allDataLoaded && foodItems.length > 0 && (
-        <div className="flex justify-center">
-        {foodItems.map((food, index) => (
-          <div
-            key={index}
-            className="bg-white sm:w-[50%] w-[90%] shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl"
-          >
-            {/* Image Section */}
+      {/* Food Item Single Card - Centered Layout */}
+      {!loading && foodItems.length > 0 && (
+        <div className="flex flex-col items-center">
+          {/* Static Card (no hover effect) */}
+          <div className="bg-white w-full sm:w-[90%] md:w-[60%] lg:w-[50%] xl:w-[40%] shadow-2xl rounded-2xl overflow-hidden">
             <img
-              src={imageUrlsRef.current[food.name] || "https://via.placeholder.com/200x150"}
-              alt={food.name}
-              className="w-full h-50 object-cover"
+              src={imageUrls[foodItems[currentIndex].name] || "https://via.placeholder.com/400x300"}
+              alt={foodItems[currentIndex].name}
+              className="w-full h-60 object-cover"
             />
-      
-            {/* Food Details */}
-            <div className="p-3">
-              <h3 className="text-lg font-bold text-gray-800 capitalize">{food.name}</h3>
-      
-              {/* Nutritional Info */}
-              <div className="grid grid-cols-2 gap-2 mt-3 text-sm">
-                <p className="text-gray-600">
-                  <span className="font-semibold">Calories:</span> {food.calories} kcal
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-semibold">Protein:</span> {food.protein_g} g
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-semibold">Fat:</span> {food.fat_total_g} g
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-semibold">Carbs:</span> {food.carbohydrates_total_g} g
-                </p>
-                <p className="text-gray-600 col-span-2">
-                  <span className="font-semibold">Sugar:</span> {food.sugar_g} g
-                </p>
+            <div className="p-5 space-y-4">
+              <h3 className="text-2xl font-bold text-gray-800 capitalize text-center">
+                {foodItems[currentIndex].name}
+              </h3>
+
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-gray-700 text-sm">
+                <p><span className="font-semibold">Calories:</span> {foodItems[currentIndex].calories} kcal</p>
+                <p><span className="font-semibold">Protein:</span> {foodItems[currentIndex].protein_g} g</p>
+                <p><span className="font-semibold">Fat:</span> {foodItems[currentIndex].fat_total_g} g</p>
+                <p><span className="font-semibold">Carbs:</span> {foodItems[currentIndex].carbohydrates_total_g} g</p>
+                <p><span className="font-semibold">Sugar:</span> {foodItems[currentIndex].sugar_g} g</p>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-      
+
+          {/* Navigation Buttons */}
+          {foodItems.length > 1 && (
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={handlePrev}
+                disabled={currentIndex === 0}
+                className={`px-4 py-2 rounded-lg ${
+                  currentIndex === 0 ? "bg-gray-300 cursor-not-allowed" : "bg-green-500 text-white hover:bg-green-600"
+                }`}
+              >
+                Previous
+              </button>
+
+              <button
+                onClick={handleNext}
+                disabled={currentIndex === foodItems.length - 1}
+                className={`px-4 py-2 rounded-lg ${
+                  currentIndex === foodItems.length - 1
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-green-500 text-white hover:bg-green-600"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
 };
 
 export default Food;
-
