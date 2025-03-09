@@ -10,6 +10,7 @@
 # To start frontend
 - Run 'cd .\client\'
 - Run 'npm i'
+- Run 'npm audit fix' (Optional)
 - Run 'npm run dev'
 - Go to 'localhost:5173' in browser
 - You can use web app
@@ -18,4 +19,4 @@
 
 # Note :- MONGOURI="Your SRV Connection String" in 'server/.env' file. 
 
-# App is Deployed 
+# App can be deployed  
