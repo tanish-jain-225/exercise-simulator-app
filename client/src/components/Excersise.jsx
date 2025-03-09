@@ -1,3 +1,4 @@
+// Search for exercises using the ExerciseDB API - By Excerise Name
 import React, { useState, useEffect, useRef } from "react";
 
 const Exercise = () => {
@@ -91,7 +92,7 @@ const Exercise = () => {
       <div className="mb-6">
         <input
           type="text"
-          placeholder="Search exercises..."
+          placeholder="Search exercises by name"
           value={searchTerm}
           onChange={handleSearch}
           className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"

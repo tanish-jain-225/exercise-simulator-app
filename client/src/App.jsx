@@ -32,7 +32,7 @@ function AppContent({ setBackgroundImage }) {
         break;
       case "/food":
         setBackgroundImage(
-          "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8bnV0cml0aW9ufGVufDB8fDB8fHww"
+          "https://images.unsplash.com/photo-1600800430120-72270592247a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8Zm9vZCUyMG51dHJpdGlvbnxlbnwwfHwwfHx8MA%3D%3D"
         );
         break;
       case "/login":

@@ -8,28 +8,28 @@ const NavigationLinks = ({ isLoggedIn, handleLogout, setIsOpen }) => {
     <>
       <Link
         to="/"
-        className="block text-white hover:text-yellow-300 transition-all duration-300"
+        className="block text-white hover:text-yellow-400 transition-all duration-300"
         onClick={() => setIsOpen(false)}
       >
         Exercise
       </Link>
       <Link
         to="/food"
-        className="block text-white hover:text-yellow-300 transition-all duration-300"
+        className="block text-white hover:text-yellow-400 transition-all duration-300"
         onClick={() => setIsOpen(false)}
       >
         Food
       </Link>
       <Link
         to="/competition"
-        className="block text-white hover:text-yellow-300 transition-all duration-300"
+        className="block text-white hover:text-yellow-400 transition-all duration-300"
         onClick={() => setIsOpen(false)}
       >
         Competition
       </Link>
       <button
         onClick={handleLogout}
-        className="block w-full text-left text-white hover:text-yellow-300"
+        className="block w-full text-left text-white hover:text-yellow-400"
       >
         Logout
       </button>
@@ -38,14 +38,14 @@ const NavigationLinks = ({ isLoggedIn, handleLogout, setIsOpen }) => {
     <>
       <Link
         to="/login"
-        className="block text-white hover:text-yellow-300 transition-all duration-300"
+        className="block text-white hover:text-yellow-400 transition-all duration-300"
         onClick={() => setIsOpen(false)}
       >
         Login
       </Link>
       <Link
         to="/signup"
-        className="block text-white hover:text-yellow-300 transition-all duration-300"
+        className="block text-white hover:text-yellow-400 transition-all duration-300"
         onClick={() => setIsOpen(false)}
       >
         Signup
@@ -72,11 +72,11 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
           <img
             src={logo}
             alt="Exercise Simulator Logo"
-            className="w-8 h-8 filter dark:invert"
+            className="w-7 h-7 filter invert"
           />
-          <h2 className="text-lg font-bold">
+          <h2 className="text-xl font-bold">
             <Link to="/" className="hover:underline transition-all duration-300">
-              PowerUp
+              Power<span className='text-yellow-400'>Up</span>
             </Link>
           </h2>
         </div>
