@@ -6,6 +6,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+import "./App.css";
 
 import Excersise from "./components/Excersise";
 import Food from "./components/Food";
