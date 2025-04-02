@@ -7,8 +7,7 @@ button{
     border: none;
 }
 
-input, textarea{
+input{
+    border: 1px solid #ccc;
     outline: none;
-    border: none;
-    background-color: #fff;
 }

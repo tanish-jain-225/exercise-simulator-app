@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import logo from '../assets/959412.png'; // Path to your logo image
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../assets/959412.png"; // Path to your logo image
 
 // Reusable Navigation Links Component
 const NavigationLinks = ({ isLoggedIn, handleLogout, setIsOpen }) => {
@@ -65,6 +65,7 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
   };
 
   return (
+    // Make it sticky when scrolling else it will be static
     <header className="bg-blue-600 text-white shadow-lg p-4">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo and Website Title */}
@@ -75,8 +76,11 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
             className="w-7 h-7 filter invert"
           />
           <h2 className="text-xl font-bold">
-            <Link to="/" className="hover:underline transition-all duration-300">
-              Power<span className='text-yellow-400'>Up</span>
+            <Link
+              to="/"
+              className="hover:underline transition-all duration-300"
+            >
+              Power<span className="text-yellow-400">Up</span>
             </Link>
           </h2>
         </div>
