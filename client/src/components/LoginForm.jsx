@@ -37,7 +37,7 @@ const LoginForm = ({ setIsLoggedIn }) => {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg m-2">
         <h2 className="text-3xl font-semibold text-center text-gray-800">
           Login
         </h2>
