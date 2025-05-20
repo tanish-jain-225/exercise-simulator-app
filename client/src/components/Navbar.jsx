@@ -20,13 +20,6 @@ const NavigationLinks = ({ isLoggedIn, handleLogout, setIsOpen }) => {
       >
         Food
       </Link>
-      <Link
-        to="/competition"
-        className="block text-white hover:text-yellow-400 transition-all duration-300"
-        onClick={() => setIsOpen(false)}
-      >
-        Competition
-      </Link>
       <button
         onClick={handleLogout}
         className="block w-full text-left text-white hover:text-yellow-400"

@@ -10,7 +10,6 @@ import "./App.css";
 
 import Excersise from "./components/Excersise";
 import Food from "./components/Food";
-import Competition from "./components/Competition"; // Import Competition component
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Login from "./components/LoginForm";
@@ -44,11 +43,6 @@ function AppContent({ setBackgroundImage }) {
       case "/signup":
         setBackgroundImage(
           "https://images.unsplash.com/photo-1483721310020-03333e577078?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGV4ZXJjaXNlJTIwZ3ltfGVufDB8fDB8fHww"
-        );
-        break;
-      case "/competition":
-        setBackgroundImage(
-          "https://images.unsplash.com/photo-1590764258299-0f91fa7f95e8?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGV0aXRpb258ZW58MHx8MHx8fDA%3D"
         );
         break;
       default:
@@ -93,10 +87,6 @@ function AppContent({ setBackgroundImage }) {
           <Route
             path="/food"
             element={isLoggedIn ? <Food /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/competition"
-            element={isLoggedIn ? <Competition /> : <Navigate to="/login" />}
           />
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
